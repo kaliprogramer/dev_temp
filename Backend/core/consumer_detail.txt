@@ -1,0 +1,172 @@
+______________________________________________________________
+| 🚀 PROJECT: REAL-TIME ADMIN NOTIFICATION ON MODEL SAVE    |
+| (Django + Channels + Redis)                              |
+|______________________________________________________________|
+
+| 🧠 1. WHAT YOU ARE BUILDING                              |
+|______________________________________________________________|
+|
+| 👉 When a Model is saved (example: Order)
+| 👉 Admin dashboard gets instant notification 🔔
+| 👉 No refresh needed (REAL-TIME)
+|
+|------------------------------------------------------------|
+
+| ⚙️ 2. INSTALL PACKAGES                                  |
+|______________________________________________________________|
+|
+| => pip install channels channels-redis
+|
+|------------------------------------------------------------|
+
+| ⚙️ 3. SETTINGS.PY CONFIG                                |
+|______________________________________________________________|
+|
+| => INSTALLED_APPS = [
+|      'channels',
+|      'yourapp',
+|    ]
+|
+| => ASGI_APPLICATION = 'project.asgi.application'
+|
+| => CHANNEL_LAYERS = {
+|      'default': {
+|          'BACKEND': 'channels_redis.core.RedisChannelLayer',
+|          'CONFIG': {
+|              'hosts': [('127.0.0.1', 6379)],
+|          },
+|      },
+|    }
+|
+|------------------------------------------------------------|
+
+| 🧠 4. CREATE CONSUMER (consumer.py)                    |
+|______________________________________________________________|
+|
+| => from channels.generic.websocket import AsyncWebsocketConsumer
+| => import json
+|
+| => class AdminNotificationConsumer(AsyncWebsocketConsumer):
+|
+|      async def connect(self):
+|          await self.channel_layer.group_add(
+|              "admin_group",
+|              self.channel_name
+|          )
+|          await self.accept()
+|
+|      async def disconnect(self, close_code):
+|          await self.channel_layer.group_discard(
+|              "admin_group",
+|              self.channel_name
+|          )
+|
+|      async def notify(self, event):
+|          await self.send(text_data=json.dumps(event["data"]))
+|
+|------------------------------------------------------------|
+
+| 🧩 5. ROUTING (routing.py)                             |
+|______________________________________________________________|
+|
+| => from django.urls import re_path
+| => from .consumers import AdminNotificationConsumer
+|
+| => websocket_urlpatterns = [
+|      re_path(r'ws/admin/notifications/', AdminNotificationConsumer.as_asgi()),
+|    ]
+|
+|------------------------------------------------------------|
+
+| 🧠 6. CONNECT ROUTING IN asgi.py                       |
+|______________________________________________________________|
+|
+| => from channels.routing import ProtocolTypeRouter, URLRouter
+| => from channels.auth import AuthMiddlewareStack
+| => import yourapp.routing
+|
+| => application = ProtocolTypeRouter({
+|      "websocket": AuthMiddlewareStack(
+|          URLRouter(
+|              yourapp.routing.websocket_urlpatterns
+|          )
+|      ),
+|    })
+|
+|------------------------------------------------------------|
+
+| 🛒 7. MODEL (models.py)                                |
+|______________________________________________________________|
+|
+| => class Order(models.Model):
+|      user = models.CharField(max_length=100)
+|      product = models.CharField(max_length=100)
+|      created_at = models.DateTimeField(auto_now_add=True)
+|
+|------------------------------------------------------------|
+
+| 🔥 8. SEND NOTIFICATION ON SAVE                        |
+|______________________________________________________________|
+|
+| => from django.db.models.signals import post_save
+| => from django.dispatch import receiver
+| => from asgiref.sync import async_to_sync
+| => from channels.layers import get_channel_layer
+| => from .models import Order
+|
+| => @receiver(post_save, sender=Order)
+| => def order_created(sender, instance, created, **kwargs):
+|
+|      if created:
+|
+|          channel_layer = get_channel_layer()
+|
+|          async_to_sync(channel_layer.group_send)(
+|              "admin_group",
+|              {
+|                  "type": "notify",
+|                  "data": {
+|                      "message": f"🛒 New Order: {instance.product}",
+|                      "user": instance.user
+|                  }
+|              }
+|          )
+|
+|------------------------------------------------------------|
+
+| 🌐 9. FRONTEND (ADMIN PANEL JS)                        |
+|______________________________________________________________|
+|
+| => const socket = new WebSocket(
+|      "ws://127.0.0.1:8000/ws/admin/notifications/"
+|    );
+|
+| => socket.onmessage = function(event) {
+|      const data = JSON.parse(event.data);
+|      console.log("🔔 Notification:", data.message);
+|      alert(data.message);
+|    };
+|
+|------------------------------------------------------------|
+
+| 🎯 10. FLOW (HOW IT WORKS)                             |
+|______________________________________________________________|
+|
+| 👦 User creates Order
+| 🧠 Django saves Order in DB
+| 🔔 signal (post_save) triggers
+| 🟥 Redis sends message
+| 📡 WebSocket pushes to admin browser
+| 🧑‍💼 Admin sees instant notification
+|
+|------------------------------------------------------------|
+
+| 💡 11. SIMPLE SUMMARY                                  |
+|______________________________________________________________|
+|
+| 👉 Model save → signal triggers
+| 👉 Signal → sends message to Channels
+| 👉 Channels → pushes via WebSocket
+| 👉 Admin → sees instant notification
+|
+|______________________________________________________________|

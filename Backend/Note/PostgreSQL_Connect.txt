@@ -1,0 +1,84 @@
+______________________________________________________________
+| 🐘 CONNECT POSTGRESQL (DJANGO STEP-BY-STEP)              |
+|______________________________________________________________|
+
+| 🧠 1. WHAT YOU ARE DOING                                |
+|______________________________________________________________|
+|
+| 👉 Connecting Django project → PostgreSQL database
+|
+|------------------------------------------------------------|
+
+| 📦 2. INSTALL DRIVER                                    |
+|______________________________________________________________|
+|
+| => pip install psycopg2-binary
+|
+|------------------------------------------------------------|
+
+| 🛠️ 3. CREATE DATABASE (POSTGRES)                       |
+|______________________________________________________________|
+|
+| => sudo -u postgres psql
+|
+| => CREATE DATABASE mydb;
+| => CREATE USER myuser WITH PASSWORD 'mypassword';
+| => ALTER ROLE myuser SET client_encoding TO 'utf8';
+| => ALTER ROLE myuser SET default_transaction_isolation TO 'read committed';
+| => ALTER ROLE myuser SET timezone TO 'UTC';
+| => GRANT ALL PRIVILEGES ON DATABASE mydb TO myuser;
+|
+|------------------------------------------------------------|
+
+| ⚙️ 4. CONNECT IN settings.py                           |
+|______________________________________________________________|
+|
+| => DATABASES = {
+|      'default': {
+|          'ENGINE': 'django.db.backends.postgresql',
+|          'NAME': 'mydb',
+|          'USER': 'myuser',
+|          'PASSWORD': 'mypassword',
+|          'HOST': 'localhost',
+|          'PORT': '5432',
+|      }
+|    }
+|
+|------------------------------------------------------------|
+
+| 🚀 5. APPLY MIGRATIONS                                 |
+|______________________________________________________________|
+|
+| => python manage.py makemigrations
+| => python manage.py migrate
+|
+|------------------------------------------------------------|
+
+| 🧪 6. TEST CONNECTION                                  |
+|______________________________________________________________|
+|
+| => python manage.py runserver
+|
+| 👉 If no error → PostgreSQL connected successfully
+|
+|------------------------------------------------------------|
+
+| ⚠️ COMMON ERROR FIX                                    |
+|______________________________________________________________|
+|
+| ❌ pg_config.h missing
+|
+| 👉 FIX:
+| => sudo apt install libpq-dev python3-dev
+|
+|------------------------------------------------------------|
+
+| 💡 SIMPLE SUMMARY                                      |
+|______________________________________________________________|
+|
+| 👉 Install psycopg2-binary
+| 👉 Create DB + user in PostgreSQL
+| 👉 Add DATABASES config in settings.py
+| 👉 Run migrations
+|
+|______________________________________________________________|

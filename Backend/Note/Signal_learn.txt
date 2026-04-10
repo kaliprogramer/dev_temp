@@ -1,0 +1,165 @@
+______________________________________________________________
+| ⚡ DJANGO SIGNALS (COMPLETE SIMPLE + REAL WORLD GUIDE)     |
+|______________________________________________________________|
+
+| 🧠 1. WHAT IS A SIGNAL?                                  |
+|______________________________________________________________|
+|
+| 👉 A SIGNAL is like a "silent helper robot 🤖"
+|
+| 👉 It listens in background and reacts automatically
+|
+|------------------------------------------------------------|
+
+| 🧩 SIMPLE STORY                                           |
+|______________________________________________________________|
+|
+| 🛒 User places order
+| 👉 You save Order in database
+|
+| 🤖 Signal automatically says:
+| "Hey! order is saved, let me do something!"
+|
+|------------------------------------------------------------|
+
+| ⚙️ 2. WHY USE SIGNALS?                                  |
+|______________________________________________________________|
+|
+| 👉 To run code WITHOUT calling it manually
+|
+| Examples:
+| - send email after signup 📧
+| - notify admin after order 🔔
+| - create profile automatically 👤
+|
+|------------------------------------------------------------|
+
+| 🧠 3. TYPES OF SIGNALS (IMPORTANT)                      |
+|______________________________________________________________|
+|
+| 👉 pre_save      → before saving data
+| 👉 post_save     → after saving data (MOST USED)
+| 👉 pre_delete    → before delete
+| 👉 post_delete   → after delete
+|
+|------------------------------------------------------------|
+
+| 📦 4. BASIC EXAMPLE (post_save)                         |
+|______________________________________________________________|
+|
+| => from django.db.models.signals import post_save
+| => from django.dispatch import receiver
+| => from .models import Order
+|
+| => @receiver(post_save, sender=Order)
+| => def order_created(sender, instance, created, **kwargs):
+|
+|      if created:
+|          print("🛒 New order created:", instance.id)
+|
+|------------------------------------------------------------|
+
+| 🧠 5. WHAT IS HAPPENING HERE?                           |
+|______________________________________________________________|
+|
+| 👉 post_save = listens after saving model
+| 👉 sender = which model (Order)
+| 👉 created = True only when new object is created
+|
+|------------------------------------------------------------|
+
+| 🔔 6. REAL WORLD USE CASES                              |
+|______________________________________________________________|
+|
+| 👉 send email after signup
+| 👉 realtime admin notification
+| 👉 create user profile automatically
+| 👉 log activity
+|
+|------------------------------------------------------------|
+
+| 📧 7. EXAMPLE: SEND EMAIL AFTER USER REGISTERS          |
+|______________________________________________________________|
+|
+| => from django.contrib.auth.models import User
+| => from django.core.mail import send_mail
+| => from django.db.models.signals import post_save
+| => from django.dispatch import receiver
+|
+| => @receiver(post_save, sender=User)
+| => def send_welcome_email(sender, instance, created, **kwargs):
+|
+|      if created:
+|          send_mail(
+|              "Welcome!",
+|              "Thanks for joining",
+|              "admin@gmail.com",
+|              [instance.email]
+|          )
+|
+|------------------------------------------------------------|
+
+| 🧩 8. BEST PRACTICE (VERY IMPORTANT)                     |
+|______________________________________________________________|
+|
+| 👉 DO NOT put signals inside models.py
+|
+| 👉 Create signals.py file:
+|
+|    yourapp/
+|      signals.py
+|
+|------------------------------------------------------------|
+
+| ⚙️ 9. CONNECT SIGNALS (apps.py)                         |
+|______________________________________________________________|
+|
+| => class YourAppConfig(AppConfig):
+|      name = 'yourapp'
+|
+|      def ready(self):
+|          import yourapp.signals
+|
+|------------------------------------------------------------|
+
+| 🧠 10. SIGNAL FLOW (VERY SIMPLE)                        |
+|______________________________________________________________|
+|
+| 🧍 User action (save model)
+| 🧠 Django saves data
+| 🤖 Signal wakes up automatically
+| ⚡ Runs extra logic
+|
+|------------------------------------------------------------|
+
+| ⚠️ 11. COMMON MISTAKES                                  |
+|______________________________________________________________|
+|
+| ❌ using signals for heavy logic (bad idea)
+| ❌ forgetting apps.py registration
+| ❌ creating infinite loops (signal triggers save again)
+|
+|------------------------------------------------------------|
+
+| 🚀 12. WHEN TO USE SIGNALS?                             |
+|______________________________________________________________|
+|
+| 👉 good:
+| - notifications
+| - logging
+| - auto-create related data
+|
+| ❌ bad:
+| - complex business logic
+| - API response logic
+|
+|------------------------------------------------------------|
+
+| 💡 SIMPLE SUMMARY                                       |
+|______________________________________________________________|
+|
+| 👉 Signal = automatic listener 🤖
+| 👉 post_save = most used
+| 👉 runs background logic after DB changes
+|
+|______________________________________________________________|

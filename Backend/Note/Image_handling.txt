@@ -1,0 +1,101 @@
+______________________________________________________________
+| 🖼️ IMAGE HANDLING IN DJANGO (SIMPLE + PRO LEVEL GUIDE)    |
+|______________________________________________________________|
+
+| 🧠 1. WHAT YOU ARE DOING                                |
+|______________________________________________________________|
+|
+| 👉 Upload images from frontend → store in backend
+|
+|------------------------------------------------------------|
+
+| 📦 2. INSTALL REQUIREMENT                               |
+|______________________________________________________________|
+|
+| => pip install Pillow
+|
+|------------------------------------------------------------|
+
+| 🧱 3. MODEL SETUP (models.py)                           |
+|______________________________________________________________|
+|
+| => class Product(models.Model):
+|      name = models.CharField(max_length=100)
+|      image = models.ImageField(upload_to='products/')
+|
+|------------------------------------------------------------|
+
+| ⚙️ 4. SETTINGS CONFIG (settings.py)                    |
+|______________________________________________________________|
+|
+| => MEDIA_URL = '/media/'
+| => MEDIA_ROOT = BASE_DIR / 'media'
+|
+|------------------------------------------------------------|
+
+| 🌐 5. SERVE MEDIA FILES (urls.py)                      |
+|______________________________________________________________|
+|
+| => from django.conf import settings
+| => from django.conf.urls.static import static
+|
+| => urlpatterns += static(settings.MEDIA_URL,
+|                          document_root=settings.MEDIA_ROOT)
+|
+|------------------------------------------------------------|
+
+| 📤 6. SERIALIZER (DRF)                                |
+|______________________________________________________________|
+|
+| => class ProductSerializer(serializers.ModelSerializer):
+|      class Meta:
+|          model = Product
+|          fields = '__all__'
+|
+|------------------------------------------------------------|
+
+| 🚀 7. UPLOAD VIA API                                  |
+|______________________________________________________________|
+|
+| 👉 Use POST request
+| 👉 Content-Type: multipart/form-data
+|
+|------------------------------------------------------------|
+
+| 📡 8. FRONTEND (REACT EXAMPLE)                        |
+|______________________________________________________________|
+|
+| => const formData = new FormData();
+| => formData.append("name", "Phone");
+| => formData.append("image", file);
+|
+| => axios.post("/api/products/", formData);
+|
+|------------------------------------------------------------|
+
+| 🖼️ 9. HOW TO ACCESS IMAGE                             |
+|______________________________________________________________|
+|
+| 👉 URL:
+| => http://localhost:8000/media/products/image.jpg
+|
+|------------------------------------------------------------|
+
+| ⚡ 10. PRO TIPS (IMPORTANT)                            |
+|______________________________________________________________|
+|
+| 👉 Use S3 in production (not local media)
+| 👉 Validate file size/type
+| 👉 Optimize images before upload
+|
+|------------------------------------------------------------|
+
+| 💡 SIMPLE SUMMARY                                    |
+|______________________________________________________________|
+|
+| 👉 ImageField in model
+| 👉 Pillow install
+| 👉 MEDIA_ROOT + MEDIA_URL setup
+| 👉 Send via FormData
+|
+|______________________________________________________________|
